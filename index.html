@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Adress Checker</title>
+  <style>
+    body {
+      background: #f8fafc;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .box {
+      background: #fff;
+      border-radius: 1rem;
+      box-shadow: 0 6px 32px #0001;
+      padding: 2rem;
+      max-width: 360px;
+      width: 100%;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: .75rem;
+      font-size: 1rem;
+      border: 1px solid #e2e8f0;
+      border-radius: .75rem;
+      margin-bottom: 1rem;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      background: #2563eb;
+      color: #fff;
+      font-weight: 600;
+      border: none;
+      border-radius: .75rem;
+      padding: .75rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:disabled {
+      background: #3b82f6;
+      cursor: not-allowed;
+    }
+    .result, .error {
+      margin-top: 1.25rem;
+      padding: 1rem;
+      border-radius: .75rem;
+      font-size: .97rem;
+      word-break: break-word;
+    }
+    .result {
+      background: #f1f5f9;
+    }
+    .error {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+    label {
+      font-weight: 500;
+      display: block;
+      margin-bottom: .5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Adress Checker</h1>
+    <form id="checker-form" autocomplete="off">
+      <label for="adress-input">Zadej adresu:</label>
+      <input
+        type="text"
+        id="adress-input"
+        pattern="[A-Za-z0-9]+"
+        maxlength="50"
+        required
+        placeholder="např. AB123CD"
+      />
+      <button type="submit" id="submit-btn">Zkontrolovat</button>
+    </form>
+    <div id="output"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('checker-form');
+    const input = document.getElementById('adress-input');
+    const output = document.getElementById('output');
+    const btn = document.getElementById('submit-btn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      output.innerHTML = '';
+      btn.disabled = true;
+      btn.textContent = "Kontroluji…";
+      const adress = input.value.trim();
+
+      try {
+        // Změň URL níže na svůj webhook!
+        const res = await fetch('YOUR_WEBHOOK_URL', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ adress })
+        });
+        if (!res.ok) throw new Error('Chyba komunikace s webhookem');
+        const data = await res.json();
+
+        output.innerHTML =
+          '<div class="result"><strong>Výsledek:</strong><br><pre>' +
+          JSON.stringify(data, null, 2) +
+          '</pre></div>';
+      } catch (err) {
+        output.innerHTML =
+          '<div class="error">Došlo k chybě: ' +
+          (err.message || 'Neznámá chyba') +
+          '</div>';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Zkontrolovat";
+      }
+    });
+  </script>
+</body>
+</html>
