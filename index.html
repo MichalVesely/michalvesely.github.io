@@ -18,7 +18,7 @@
       border-radius: 1rem;
       box-shadow: 0 6px 32px #0001;
       padding: 2rem;
-      max-width: 360px;
+      max-width: 420px;
       width: 100%;
     }
     h1 {
@@ -70,6 +70,47 @@
       display: block;
       margin-bottom: .5rem;
     }
+    .section-title {
+      margin-top: 1.5rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #2563eb;
+    }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: .5rem 0 1rem 0;
+      background: #f1f5f9;
+      border-radius: .5rem;
+      overflow: hidden;
+    }
+    .data-table th, .data-table td {
+      padding: .4rem .7rem;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+      font-size: .96rem;
+    }
+    .data-table th {
+      background: #e0e7ef;
+      font-weight: 500;
+      width: 44%;
+    }
+    .data-table tr:last-child td {
+      border-bottom: none;
+    }
+    .list {
+      margin: 0;
+      padding-left: 1.2em;
+    }
+    .detail {
+      margin-bottom: 0.7em;
+    }
+    @media (max-width: 600px) {
+      .box {
+        padding: 1rem;
+        max-width: 100vw;
+      }
+    }
   </style>
 </head>
 <body>
@@ -82,7 +123,7 @@
         id="adress-input"
         maxlength="100"
         required
-        placeholder="např. Okružní 7, Plzeň"
+        placeholder="např. Obránců míru 691, Hořovice"
       />
       <button type="submit" id="submit-btn">Zkontrolovat</button>
     </form>
@@ -113,9 +154,9 @@
         const data = await res.json();
 
         output.innerHTML =
-          '<div class="result"><strong>Výsledek:</strong><br><pre>' +
-          JSON.stringify(data, null, 2) +
-          '</pre></div>';
+          '<div class="result"><strong>Výsledek:</strong><br>' +
+          renderResult(data) +
+          '</div>';
       } catch (err) {
         output.innerHTML =
           '<div class="error">Došlo k chybě: ' +
@@ -126,6 +167,124 @@
         btn.textContent = "Zkontrolovat";
       }
     });
+
+    function renderResult(data) {
+      if (!data) return '<em>Žádná data</em>';
+
+      let html = '';
+
+      // 1. Souhrn
+      if (data.souhrn)
+        html += `<div class="section-title">Souhrn</div><div class="detail">${data.souhrn}</div>`;
+
+      // 2. Identifikace objektu
+      if (data.identifikace_objektu) {
+        html += `<div class="section-title">Identifikace objektu</div><table class="data-table">`;
+        const obj = data.identifikace_objektu;
+        if (obj.adresa)
+          html += `<tr><th>Adresa</th><td>${obj.adresa.hodnota || ''} ${renderZdroj(obj.adresa.zdroje)}</td></tr>`;
+        if (obj.parcelni_cislo)
+          html += `<tr><th>Parcelní číslo</th><td>${obj.parcelni_cislo.hodnota || ''} ${renderZdroj(obj.parcelni_cislo.zdroje)}</td></tr>`;
+        if (obj.gps && obj.gps.hodnota)
+          html += `<tr><th>GPS</th><td>Lat: ${obj.gps.hodnota.lat}, Lon: ${obj.gps.hodnota.lon} ${renderZdroj(obj.gps.zdroje)}</td></tr>`;
+        if (obj.typ_stavby)
+          html += `<tr><th>Typ stavby</th><td>${obj.typ_stavby.hodnota || ''} ${renderZdroj(obj.typ_stavby.zdroje)}</td></tr>`;
+        if (obj.rok_vystavby_obdobi)
+          html += `<tr><th>Období výstavby</th><td>${obj.rok_vystavby_obdobi.hodnota || ''} ${renderZdroj(obj.rok_vystavby_obdobi.zdroje)}</td></tr>`;
+        if (obj.pocet_podlazi)
+          html += `<tr><th>Počet nadzemních podlaží</th><td>${obj.pocet_podlazi.nadzemni || ''} ${renderZdroj(obj.pocet_podlazi.zdroje)}</td></tr>`;
+        html += `</table>`;
+      }
+
+      // 3. Konstrukce/technologie
+      if (data.konstrukce_technologie) {
+        html += `<div class="section-title">Konstrukce a technologie</div><table class="data-table">`;
+        const kon = data.konstrukce_technologie;
+        if (kon.material_nosnych_konstrukci && kon.material_nosnych_konstrukci.svisle)
+          html += `<tr><th>Svislé nosné konstrukce</th><td>${kon.material_nosnych_konstrukci.svisle.hodnota} ${renderZdroj(kon.material_nosnych_konstrukci.svisle.zdroje)}</td></tr>`;
+        if (kon.material_nosnych_konstrukci && kon.material_nosnych_konstrukci.vodorovne)
+          html += `<tr><th>Vodorovné konstrukce</th><td>${kon.material_nosnych_konstrukci.vodorovne.hodnota} ${renderZdroj(kon.material_nosnych_konstrukci.vodorovne.zdroje)}</td></tr>`;
+        if (kon.material_nosnych_konstrukci && kon.material_nosnych_konstrukci.strecha)
+          html += `<tr><th>Střecha</th><td>${kon.material_nosnych_konstrukci.strecha.hodnota} ${renderZdroj(kon.material_nosnych_konstrukci.strecha.zdroje)}</td></tr>`;
+        if (kon.kotelna)
+          html += `<tr><th>Kotelna</th><td>${kon.kotelna.stav}, ${kon.kotelna.detail} ${renderZdroj(kon.kotelna.zdroje)}</td></tr>`;
+        if (kon.trafostanice)
+          html += `<tr><th>Trafostanice</th><td>${kon.trafostanice.stav}, ${kon.trafostanice.detail} ${renderZdroj(kon.trafostanice.zdroje)}</td></tr>`;
+        if (kon.fve)
+          html += `<tr><th>FVE (solární panely)</th><td>${kon.fve.stav}, ${kon.fve.detail} ${renderZdroj(kon.fve.zdroje)}</td></tr>`;
+        if (kon.nabijeci_stanice_ev)
+          html += `<tr><th>Nabíjecí stanice EV</th><td>${kon.nabijeci_stanice_ev.stav}, ${kon.nabijeci_stanice_ev.detail} ${renderZdroj(kon.nabijeci_stanice_ev.zdroje)}</td></tr>`;
+        if (kon.hydranty_v_okoli)
+          html += `<tr><th>Hydranty v okolí</th><td>${kon.hydranty_v_okoli.stav}, ${kon.hydranty_v_okoli.detail} ${renderZdroj(kon.hydranty_v_okoli.zdroje)}</td></tr>`;
+        if (kon.oploceni)
+          html += `<tr><th>Oplocení</th><td>${kon.oploceni.stav}, ${kon.oploceni.detail} ${renderZdroj(kon.oploceni.zdroje)}</td></tr>`;
+        if (kon.kamerovy_system)
+          html += `<tr><th>Kamerový systém</th><td>${kon.kamerovy_system.stav}, ${kon.kamerovy_system.detail} ${renderZdroj(kon.kamerovy_system.zdroje)}</td></tr>`;
+        html += `</table>`;
+      }
+
+      // 4. Statistické a katastrální údaje
+      if (data.statisticke_katastralni_udaje) {
+        const stat = data.statisticke_katastralni_udaje;
+        html += `<div class="section-title">Statistické a katastrální údaje</div><table class="data-table">`;
+        if (stat.zastavena_plocha_m2)
+          html += `<tr><th>Zastavěná plocha</th><td>${stat.zastavena_plocha_m2.hodnota} m² ${renderZdroj(stat.zastavena_plocha_m2.zdroje)}</td></tr>`;
+        if (stat.pocet_bytu)
+          html += `<tr><th>Počet bytů</th><td>${stat.pocet_bytu.hodnota} ${renderZdroj(stat.pocet_bytu.zdroje)}</td></tr>`;
+        if (stat.pocet_nadzemnich_podlazi)
+          html += `<tr><th>Počet nadzemních podlaží</th><td>${stat.pocet_nadzemnich_podlazi.hodnota} ${renderZdroj(stat.pocet_nadzemnich_podlazi.zdroje)}</td></tr>`;
+        if (stat.vytah)
+          html += `<tr><th>Výtah</th><td>${stat.vytah.hodnota} ${renderZdroj(stat.vytah.zdroje)}</td></tr>`;
+        if (stat.material_nosnych_zdi)
+          html += `<tr><th>Materiál nosných zdí</th><td>${stat.material_nosnych_zdi.hodnota} ${renderZdroj(stat.material_nosnych_zdi.zdroje)}</td></tr>`;
+        if (stat.zpusob_vytapeni)
+          html += `<tr><th>Způsob vytápění</th><td>${stat.zpusob_vytapeni.hodnota} ${renderZdroj(stat.zpusob_vytapeni.zdroje)}</td></tr>`;
+        if (stat.napojeni_na_site)
+          html += `<tr><th>Napojení na sítě</th><td>${Array.isArray(stat.napojeni_na_site.hodnota) ? stat.napojeni_na_site.hodnota.join(', ') : stat.napojeni_na_site.hodnota} ${renderZdroj(stat.napojeni_na_site.zdroje)}</td></tr>`;
+        if (stat.pocet_obyvatel)
+          html += `<tr><th>Počet obyvatel</th><td>${stat.pocet_obyvatel.hodnota} ${renderZdroj(stat.pocet_obyvatel.zdroje)}</td></tr>`;
+        if (stat.vlastnictvi)
+          html += `<tr><th>Vlastnictví</th><td>${stat.vlastnictvi.hodnota} ${renderZdroj(stat.vlastnictvi.zdroje)}</td></tr>`;
+        html += `</table>`;
+      }
+
+      // 5. Lokalita a okolní prostředí
+      if (data.lokalita_okolni_prostredi) {
+        const lok = data.lokalita_okolni_prostredi;
+        html += `<div class="section-title">Lokalita a okolní prostředí</div>`;
+        html += `<table class="data-table">`;
+        if (lok.charakter)
+          html += `<tr><th>Charakter</th><td>${lok.charakter}</td></tr>`;
+        if (lok.hustota_zastavby)
+          html += `<tr><th>Hustota zástavby</th><td>${lok.hustota_zastavby}</td></tr>`;
+        if (lok.vzdalenost_k_nejblizsim_objektum_m !== undefined && lok.vzdalenost_k_nejblizsim_objektum_m !== null)
+          html += `<tr><th>Vzdálenost k nejbližším objektům</th><td>${lok.vzdalenost_k_nejblizsim_objektum_m} m</td></tr>`;
+        if (lok.obcanska_vybavenost)
+          html += `<tr><th>Občanská vybavenost</th><td><ul class="list">${lok.obcanska_vybavenost.map(x => `<li>${x}</li>`).join('')}</ul></td></tr>`;
+        if (lok.dopravni_dostupnost)
+          html += `<tr><th>Dopravní dostupnost</th><td>${lok.dopravni_dostupnost}</td></tr>`;
+        if (lok.rizika)
+          html += `<tr><th>Rizika</th><td>${lok.rizika}</td></tr>`;
+        if (lok.okolni_zelen)
+          html += `<tr><th>Okolní zeleň</th><td>${lok.okolni_zelen}</td></tr>`;
+        if (lok.parkovani)
+          html += `<tr><th>Parkování</th><td>${lok.parkovani}</td></tr>`;
+        html += `</table>`;
+      }
+
+      return html;
+    }
+
+    // Pomocná funkce pro zobrazení zdrojů
+    function renderZdroj(zdroje) {
+      if (!zdroje || !zdroje.length) return '';
+      return (
+        '<span style="font-size: 90%;color:#666;">' +
+        ' [zdroje: ' +
+        zdroje.map(z => `${z.nazev}${z.duveryhodnost ? ' ('+z.duveryhodnost+')' : ''}`).join(', ') +
+        ']</span>'
+      );
+    }
   </script>
 </body>
 </html>
