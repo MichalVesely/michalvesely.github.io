@@ -80,10 +80,9 @@
       <input
         type="text"
         id="adress-input"
-        pattern="[A-Za-z0-9]+"
-        maxlength="50"
+        maxlength="100"
         required
-        placeholder="např. AB123CD"
+        placeholder="např. Obránců míru 691, Hořovice"
       />
       <button type="submit" id="submit-btn">Zkontrolovat</button>
     </form>
@@ -105,7 +104,7 @@
 
       try {
         // Změň URL níže na svůj webhook!
-        const res = await fetch('https://hook.eu2.make.com/t7uwl8n3si3xdvp17bi8dcs4toj4cpeh', {
+        const res = await fetch('YOUR_WEBHOOK_URL', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ adress })
