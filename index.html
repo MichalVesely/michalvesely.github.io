@@ -2,145 +2,168 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Address Checker – obrázky + katastr PNG</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Address Checker – satelit, streetview a katastr</title>
+  <meta name="color-scheme" content="light dark" />
   <style>
-    :root {
-      --brand: #2563eb;
-      --bg: #f8fafc;
-      --card: #fff;
-      --muted: #f1f5f9;
-      --muted-2: #e2e8f0;
-      --shadow: 0 6px 32px #0001;
-      --r-lg: 1rem;
-      --r-md: .75rem;
+    :root{
+      --brand:#2563eb;
+      --brand-600:#1d4ed8;
+      --bg:#f6f8fb;
+      --card:#ffffff;
+      --ink:#0f172a;
+      --muted:#eef2f7;
+      --muted-2:#e2e8f0;
+      --ok:#16a34a;
+      --warn:#b91c1c;
+      --shadow:0 12px 40px rgba(2,8,23,.06), 0 2px 6px rgba(2,8,23,.04);
+      --r-lg:1rem; --r-md:.75rem; --r-sm:.5rem;
     }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: #0f172a;
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;color:var(--ink);background:var(--bg);
       font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-      min-height: 100vh;
-      display: grid;
-      grid-template-rows: auto 1fr;
-      gap: 1rem;
+      display:grid;grid-template-rows:auto 1fr;gap:1.2rem;
     }
-    .topbar {
-      background: var(--card);
-      box-shadow: var(--shadow);
-      padding: 1rem clamp(1rem, 2vw, 2rem);
-      display: grid;
-      grid-template-columns: 1fr auto;
-      align-items: center;
-      gap: 1rem;
+    .topbar{
+      background:var(--card); box-shadow:var(--shadow);
+      padding:1.2rem clamp(1rem,3vw,2rem);
+      display:grid; gap:.75rem;
     }
-    h1 {
-      margin: 0;
-      font-size: clamp(1.25rem, 2.4vw, 1.75rem);
+    .title{
+      display:flex; align-items:baseline; gap:.75rem; flex-wrap:wrap;
     }
-    form {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: .75rem;
-      width: min(960px, 100%);
-      justify-self: end;
+    h1{margin:0;font-size:clamp(1.25rem,2.6vw,1.8rem);line-height:1.2}
+    .subtitle{color:#475569; font-size:.95rem}
+    form{
+      display:grid; grid-template-columns:1fr auto; gap:.6rem;
+      width:min(980px,100%); align-items:center;
     }
-    label { display: none; }
+    label{display:none}
     input[type="text"]{
-      padding:.8rem .9rem;border:1px solid var(--muted-2);border-radius:var(--r-md);font-size:1rem;background:#fff;
+      padding:.9rem 1rem; border:1px solid var(--muted-2); border-radius:var(--r-md);
+      background:#fff; font-size:1rem; outline:none;
     }
+    input[type="text"]:focus{border-color:var(--brand); box-shadow:0 0 0 3px rgba(37,99,235,.12)}
     button{
-      padding:.8rem 1rem;border:0;border-radius:var(--r-md);font-weight:600;font-size:1rem;color:#fff;background:var(--brand);cursor:pointer;
+      padding:.9rem 1rem; border:0; border-radius:var(--r-md); font-weight:600; font-size:1rem;
+      color:#fff; background:var(--brand); cursor:pointer; display:inline-flex; align-items:center; gap:.5rem;
+      transition:background .15s ease;
     }
-    .content {
-      padding: 0 clamp(1rem, 2vw, 2rem) 2rem;
+    button:hover{background:var(--brand-600)}
+    button[disabled]{opacity:.7; cursor:not-allowed}
+    .btn-spinner{
+      width:1em;height:1em;border:.2em solid rgba(255,255,255,.55); border-top-color:#fff; border-radius:50%;
+      display:none; animation:spin .9s linear infinite;
     }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0,1fr));
-      gap: 1rem;
-      align-items: stretch;
-    }
-    .card {
-      background: var(--card);
-      border-radius: var(--r-lg);
-      box-shadow: var(--shadow);
-      padding: 1rem;
-    }
-    .thumb {
-      display: grid;
-      grid-template-rows: auto 1fr;
-      gap: .6rem;
-    }
-    .thumb h3 {
-      margin: 0; font-size: 1rem; font-weight: 700; color: var(--brand);
-    }
-    .thumb .frame {
-      background: var(--muted);
-      border: 1px solid var(--muted-2);
-      border-radius: .75rem;
-      overflow: hidden;
-      display: grid;
-      place-items: center;
-      min-height: 220px;
-    }
-    .thumb img {
-      width: 100%;
-      height: 100%;
-      max-height: 420px;
-      object-fit: cover;
-      display: block;
-    }
-    .result, .error {
-      margin-top: 1rem; padding: 1rem; border-radius: .75rem; font-size:.97rem;
-    }
-    .result { background: var(--muted); }
-    .error { background: #fee2e2; color: #b91c1c; }
-    .section-title { margin:.8rem 0 .4rem; font-weight:700; color:var(--brand); }
-    .data-table { width:100%; border-collapse:collapse; background:var(--muted); border-radius:.5rem; overflow:hidden; }
-    .data-table th,.data-table td{ padding:.45rem .7rem; border-bottom:1px solid var(--muted-2); text-align:left; font-size:.95rem; }
-    .data-table th{ background:#e0e7ef; width:42%; }
-    .data-table tr:last-child td{ border-bottom:0; }
+    button[aria-busy="true"] .btn-spinner{display:inline-block}
 
-    @media (max-width: 1000px) {
-      form { grid-template-columns: 1fr; width: 100%; justify-self: stretch; }
-      .grid { grid-template-columns: 1fr; }
+    .content{padding:0 clamp(1rem,3vw,2rem) 2rem}
+    .card{
+      background:var(--card); border-radius:var(--r-lg); box-shadow:var(--shadow); padding:1rem;
     }
+    .empty{
+      display:grid; place-items:center; padding:2rem; text-align:center; gap:.6rem; color:#334155;
+    }
+    .empty svg{width:56px;height:56px;opacity:.7}
+    .hint{font-size:.95rem;color:#475569}
+
+    .grid{
+      display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:1rem; align-items:stretch;
+    }
+    .thumb{display:grid; grid-template-rows:auto 1fr; gap:.6rem}
+    .thumb h3{margin:0;font-size:1rem;font-weight:800;color:var(--brand)}
+    .frame{
+      background:var(--muted); border:1px solid var(--muted-2); border-radius:.9rem; overflow:hidden;
+      min-height:240px; position:relative; display:grid; place-items:center;
+    }
+    .frame img{width:100%; height:100%; object-fit:cover; display:block; max-height:480px}
+    .fallback{padding:1rem; opacity:.75}
+
+    /* skeleton */
+    .skeleton::after{
+      content:""; position:absolute; inset:0; background:
+        linear-gradient(90deg, transparent, rgba(255,255,255,.5), transparent);
+      transform:translateX(-100%); animation:shimmer 1.2s infinite;
+    }
+    .skeleton{background:var(--muted);}
+
+    /* results + errors */
+    .result,.error{margin-top:1rem; padding:1rem; border-radius:.75rem; font-size:.97rem}
+    .result{background:var(--muted)}
+    .error{background:#fee2e2; color:#7f1d1d; border:1px solid #fecaca}
+
+    .section-title{margin:1rem 0 .4rem; font-weight:800; color:var(--brand)}
+    .data-table{width:100%; border-collapse:collapse; background:var(--muted); border-radius:.5rem; overflow:hidden}
+    .data-table th,.data-table td{padding:.48rem .7rem; border-bottom:1px solid var(--muted-2); text-align:left; font-size:.95rem}
+    .data-table th{background:#e0e7ef; width:42%}
+    .data-table tr:last-child td{border-bottom:0}
+
+    @media (max-width:1000px){
+      form{grid-template-columns:1fr}
+      .grid{grid-template-columns:1fr}
+    }
+
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes shimmer{to{transform:translateX(100%)}}
   </style>
 </head>
 <body>
   <div class="topbar">
-    <h1>Address Checker – jen obrázky</h1>
+    <div class="title">
+      <h1>Address Checker</h1>
+      <div class="subtitle">Satelit, Street View a katastr PNG podle adresy</div>
+    </div>
     <form id="checker-form" autocomplete="off">
-      <label for="adress-input">Zadej adresu</label>
-      <input id="adress-input" type="text" maxlength="120" required placeholder="např. Okružní 7, Řež" />
-      <button id="submit-btn" type="submit">Zkontrolovat</button>
+      <label for="address-input">Zadej adresu</label>
+      <input id="address-input" type="text" maxlength="120" required placeholder="např. Okružní 7, Řež" />
+      <button id="submit-btn" type="submit" aria-busy="false">
+        <span class="btn-spinner" aria-hidden="true"></span>
+        Zkontrolovat
+      </button>
     </form>
   </div>
 
   <div class="content">
+    <!-- úvodní stav -->
     <div id="output" class="card">
-      <div class="result">Zadej adresu a ukážu satelit, streetview a katastr PNG.</div>
+      <div class="empty" id="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M3 11a9 9 0 1118 0 9 9 0 01-18 0zm9-4v5l3 3"/>
+        </svg>
+        <div><strong>Zadej adresu</strong> a ukážu satelitní snímek, Street View a výřez katastru (PNG).</div>
+        <div class="hint">Tip: formát „Ulice 123, Město“ funguje nejspolehlivěji.</div>
+      </div>
     </div>
 
+    <!-- obrázky -->
     <div class="grid" id="images-grid" style="display:none;">
       <div class="card thumb">
         <h3>Satelitní snímek</h3>
-        <div class="frame"><img id="img-sat" alt="Satelitní snímek"></div>
+        <div class="frame" id="frame-sat">
+          <div class="fallback">Zatím žádná data</div>
+        </div>
       </div>
       <div class="card thumb">
         <h3>Street View</h3>
-        <div class="frame"><img id="img-street" alt="Street View snímek"></div>
+        <div class="frame" id="frame-street">
+          <div class="fallback">Zatím žádná data</div>
+        </div>
       </div>
       <div class="card thumb">
         <h3>Katastrální mapa (PNG)</h3>
-        <div class="frame"><img id="img-katastr" alt="Katastrální mapa"></div>
+        <div class="frame" id="frame-katastr">
+          <div class="fallback">Zatím žádná data</div>
+        </div>
       </div>
     </div>
 
+    <!-- detaily -->
     <div class="card" id="details" style="margin-top:1rem;"></div>
 
+    <!-- zdroje -->
     <div class="card" style="margin-top:1rem;">
       <div class="section-title">Zdroje</div>
       <p style="margin:.4rem 0 0 0">
@@ -153,39 +176,48 @@
 
   <script>
     const form   = document.getElementById('checker-form');
-    const input  = document.getElementById('adress-input');
+    const input  = document.getElementById('address-input');
     const btn    = document.getElementById('submit-btn');
     const output = document.getElementById('output');
     const grid   = document.getElementById('images-grid');
-    const imgSat    = document.getElementById('img-sat');
-    const imgStreet = document.getElementById('img-street');
-    const imgKat    = document.getElementById('img-katastr');
-    const details   = document.getElementById('details');
+    const details= document.getElementById('details');
 
-    form.addEventListener('submit', async (e) => {
+    const frameSat    = document.getElementById('frame-sat');
+    const frameStreet = document.getElementById('frame-street');
+    const frameKat    = document.getElementById('frame-katastr');
+
+    form.addEventListener('submit', onSubmit);
+
+    async function onSubmit(e){
       e.preventDefault();
+      const address = (input.value || '').trim();
+      if(!address) return;
+
+      // UI: reset + loadery
       grid.style.display = 'none';
       output.innerHTML = '';
       details.innerHTML = '';
-      btn.disabled = true;
-      btn.textContent = 'Kontroluji…';
+      setButtonBusy(true);
 
-      const adress = input.value.trim();
+      // připrav skeletony ve framech
+      setFrameSkeleton(frameSat, true);
+      setFrameSkeleton(frameStreet, true);
+      setFrameSkeleton(frameKat, true);
 
       try {
-        // 1) Tvůj webhook
+        // 1) webhook
         const res = await fetch('https://hook.eu2.make.com/t7uwl8n3si3xdvp17bi8dcs4toj4cpeh', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ adress })
+          body: JSON.stringify({ adress: address })
         });
-        if (!res.ok) throw new Error('Chyba komunikace s webhookem');
+        if(!res.ok) throw new Error('Chyba komunikace s webhookem');
         const data = await res.json();
 
-        // 2) Najdeme/odvodíme obrázky
-        const satURL   = data?.URL_satelite_image || '';
-        const stvURL   = data?.URL_streetview_image || '';
-        let   katURL   = data?.mapa || ''; // pokud webhook už vrací PNG katastru
+        // 2) URL obrázků
+        const satURL = data?.URL_satelite_image || '';
+        const stvURL = data?.URL_streetview_image || '';
+        let   katURL = data?.mapa || '';
 
         // GPS z webhooku
         let lat = null, lon = null;
@@ -194,51 +226,109 @@
           lon = Number(data.identifikace_objektu.gps.hodnota.lon);
         }
 
-        // Když chybí GPS, zkus geokódovat (jen pro katastrální PNG fallback)
-        if ((lat == null || isNaN(lat) || lon == null || isNaN(lon)) && adress) {
+        // 3) fallback geokódování (pro katastr WMS)
+        if ((lat == null || isNaN(lat) || lon == null || isNaN(lon)) && address) {
           try {
-            const geo = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(adress), {
+            const geo = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(address), {
               headers: { 'Accept': 'application/json' }
             }).then(r => r.json()).catch(() => []);
-            if (geo && geo.length) {
+            if (Array.isArray(geo) && geo.length) {
               lat = parseFloat(geo[0].lat);
               lon = parseFloat(geo[0].lon);
             }
           } catch(_) {}
         }
 
-        // Vytvoř WMS PNG katastru, jen když není z webhooku
-        if (!katURL && lat != null && lon != null && !isNaN(lat) && !isNaN(lon)) {
-          katURL = buildCadastralWmsUrl(lon, lat); // lon,lat pořadí
+        // 4) postav WMS URL pokud chybí
+        if (!katURL && isFinite(lat) && isFinite(lon)) {
+          katURL = buildCadastralWmsUrl(lon, lat); // pořadí lon,lat
         }
 
-        // 3) Render obrázků (jen co existuje)
-        imgSat.src    = satURL || '';
-        imgStreet.src = stvURL || '';
-        imgKat.src    = katURL || '';
-
-        // pokud žádné URL, zobraz placeholder text
-        if (!satURL)    imgSat.parentElement.innerHTML    = '<div style="padding:1rem;opacity:.7;">Satelitní snímek nedostupný</div>';
-        if (!stvURL)    imgStreet.parentElement.innerHTML = '<div style="padding:1rem;opacity:.7;">Street View nedostupné</div>';
-        if (!katURL)    imgKat.parentElement.innerHTML    = '<div style="padding:1rem;opacity:.7;">Katastrální PNG nedostupné</div>';
+        // 5) mount obrázků
+        mountImage(frameSat,    satURL, 'Satelitní snímek', 'Satelitní snímek nedostupný');
+        mountImage(frameStreet, stvURL, 'Street View snímek', 'Street View nedostupné');
+        mountImage(frameKat,    katURL, 'Katastrální mapa', 'Katastrální PNG nedostupné');
 
         grid.style.display = 'grid';
 
-        // 4) Doplň detaily (tvoje původní tabulky)
-        details.innerHTML = renderDetails(data);
+        // 6) detaily
+        details.innerHTML = renderDetails(data) || '';
+
+        // 7) info
+        const okMsg = document.createElement('div');
+        okMsg.className = 'result';
+        okMsg.textContent = 'Hotovo. Níže jsou dostupné náhledy a detaily.';
+        output.replaceChildren(okMsg);
 
       } catch (err) {
-        output.innerHTML = '<div class="error">Došlo k chybě: ' + (err?.message || 'Neznámá chyba') + '</div>';
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Zkontrolovat';
-      }
-    });
+        const msg = document.createElement('div');
+        msg.className = 'error';
+        msg.textContent = 'Došlo k chybě: ' + (err?.message || 'Neznámá chyba');
+        output.replaceChildren(msg);
 
-    // ---- Pomocné: WMS ČÚZK -> PNG katastru ----
-    // Používám WMS 1.1.1 (SRS=EPSG:4326, BBOX=lon/lat), vrstva CP.CadastralParcel.
-    function buildCadastralWmsUrl(lon, lat, size=512) {
-      const delta = 0.0018; // ~200 m okno (zhruba), uprav dle potřeby
+        // případně zruš skeletony
+        setFrameSkeleton(frameSat, false, 'Chyba načítání');
+        setFrameSkeleton(frameStreet, false, 'Chyba načítání');
+        setFrameSkeleton(frameKat, false, 'Chyba načítání');
+      } finally {
+        setButtonBusy(false);
+      }
+    }
+
+    function setButtonBusy(busy){
+      btn.setAttribute('aria-busy', busy ? 'true' : 'false');
+      btn.disabled = !!busy;
+    }
+
+    function setFrameSkeleton(frame, show, fallbackText){
+      frame.classList.toggle('skeleton', !!show);
+      if(show){
+        frame.innerHTML = '';
+      } else if (fallbackText){
+        frame.innerHTML = '';
+        frame.appendChild(makeFallback(fallbackText));
+      } else {
+        frame.innerHTML = '';
+      }
+    }
+
+    function makeFallback(text){
+      const div = document.createElement('div');
+      div.className = 'fallback';
+      div.textContent = text;
+      return div;
+    }
+
+    function mountImage(frame, url, alt, fallbackText){
+      setFrameSkeleton(frame, true);
+
+      // bez URL → fallback
+      if(!url){
+        setFrameSkeleton(frame, false, fallbackText);
+        return;
+      }
+
+      const img = new Image();
+      img.alt = alt || '';
+      img.loading = 'lazy';
+      img.referrerPolicy = 'no-referrer';
+
+      img.onerror = () => {
+        setFrameSkeleton(frame, false, fallbackText);
+      };
+      img.onload = () => {
+        frame.classList.remove('skeleton');
+        frame.replaceChildren(img);
+      };
+
+      // nakonec src
+      img.src = url;
+    }
+
+    // ---- ČÚZK WMS → PNG katastru ----
+    // WMS 1.1.1 (SRS=EPSG:4326), BBOX=lon/lat, vrstva CP.CadastralParcel
+    function buildCadastralWmsUrl(lon, lat, size=512){
+      const delta = 0.0018; // cca ~200 m okno
       const minx = (lon - delta).toFixed(6);
       const miny = (lat - delta).toFixed(6);
       const maxx = (lon + delta).toFixed(6);
@@ -246,127 +336,133 @@
 
       const base = 'https://services.cuzk.cz/wms/inspire-cp-wms.asp';
       const params = new URLSearchParams({
-        SERVICE: 'WMS',
-        VERSION: '1.1.1',
-        REQUEST: 'GetMap',
-        LAYERS: 'CP.CadastralParcel',
-        STYLES: '',
-        SRS: 'EPSG:4326',
-        BBOX: `${minx},${miny},${maxx},${maxy}`,
-        WIDTH: String(size),
-        HEIGHT: String(size),
-        FORMAT: 'image/png',
-        TRANSPARENT: 'TRUE',
-        BGCOLOR: '0xFFFFFF'
+        SERVICE:'WMS',
+        VERSION:'1.1.1',
+        REQUEST:'GetMap',
+        LAYERS:'CP.CadastralParcel',
+        STYLES:'',
+        SRS:'EPSG:4326',
+        BBOX:`${minx},${miny},${maxx},${maxy}`,
+        WIDTH:String(size),
+        HEIGHT:String(size),
+        FORMAT:'image/png',
+        TRANSPARENT:'TRUE',
+        EXCEPTIONS:'application/vnd.ogc.se_inimage', // PNG i při chybě
+        BGCOLOR:'0xFFFFFF'
       });
       return `${base}?${params.toString()}`;
     }
 
-    // ---- Render detailních tabulek (zachováno) ----
-    function renderDetails(data) {
-      if (!data) return '';
+    // ---- Render tabulek ----
+    function renderDetails(data){
+      if(!data) return '';
       let html = '';
 
-      // Souhrn
       if (data.souhrn)
-        html += `<div class="section-title">Souhrn</div><div>${data.souhrn}</div>`;
+        html += `<div class="section-title">Souhrn</div><div>${escapeHTML(data.souhrn)}</div>`;
 
-      // Identifikace objektu
       if (data.identifikace_objektu) {
-        html += `<div class="section-title">Identifikace objektu</div><table class="data-table">`;
         const obj = data.identifikace_objektu;
+        html += `<div class="section-title">Identifikace objektu</div><table class="data-table">`;
         if (obj.adresa)
-          html += `<tr><th>Adresa</th><td>${obj.adresa.hodnota || ''} ${renderZdroj(obj.adresa.zdroje)}</td></tr>`;
+          html += row('Adresa', safe(obj.adresa?.hodnota) + ' ' + renderZdroj(obj.adresa?.zdroje));
         if (obj.parcelni_cislo)
-          html += `<tr><th>Parcelní číslo</th><td>${obj.parcelni_cislo.hodnota || ''} ${renderZdroj(obj.parcelni_cislo.zdroje)}</td></tr>`;
+          html += row('Parcelní číslo', safe(obj.parcelni_cislo?.hodnota) + ' ' + renderZdroj(obj.parcelni_cislo?.zdroje));
         if (obj.gps?.hodnota)
-          html += `<tr><th>GPS</th><td>Lat: ${obj.gps.hodnota.lat}, Lon: ${obj.gps.hodnota.lon} ${renderZdroj(obj.gps.zdroje)}</td></tr>`;
+          html += row('GPS', `Lat: ${safe(obj.gps.hodnota.lat)}, Lon: ${safe(obj.gps.hodnota.lon)} ${renderZdroj(obj.gps?.zdroje)}`);
         if (obj.typ_stavby)
-          html += `<tr><th>Typ stavby</th><td>${obj.typ_stavby.hodnota || ''} ${renderZdroj(obj.typ_stavby.zdroje)}</td></tr>`;
+          html += row('Typ stavby', safe(obj.typ_stavby?.hodnota) + ' ' + renderZdroj(obj.typ_stavby?.zdroje));
         if (obj.rok_vystavby_obdobi)
-          html += `<tr><th>Období výstavby</th><td>${obj.rok_vystavby_obdobi.hodnota || ''} ${renderZdroj(obj.rok_vystavby_obdobi.zdroje)}</td></tr>`;
+          html += row('Období výstavby', safe(obj.rok_vystavby_obdobi?.hodnota) + ' ' + renderZdroj(obj.rok_vystavby_obdobi?.zdroje));
         if (obj.pocet_podlazi)
-          html += `<tr><th>Počet nadzemních podlaží</th><td>${obj.pocet_podlazi.nadzemni || ''} ${renderZdroj(obj.pocet_podlazi.zdroje)}</td></tr>`;
+          html += row('Počet nadzemních podlaží', safe(obj.pocet_podlazi?.nadzemni) + ' ' + renderZdroj(obj.pocet_podlazi?.zdroje));
         html += `</table>`;
       }
 
-      // Konstrukce/technologie
       if (data.konstrukce_technologie) {
-        html += `<div class="section-title">Konstrukce a technologie</div><table class="data-table">`;
         const kon = data.konstrukce_technologie;
+        html += `<div class="section-title">Konstrukce a technologie</div><table class="data-table">`;
         if (kon.material_nosnych_konstrukci?.svisle)
-          html += `<tr><th>Svislé nosné konstrukce</th><td>${kon.material_nosnych_konstrukci.svisle.hodnota} ${renderZdroj(kon.material_nosnych_konstrukci.svisle.zdroje)}</td></tr>`;
+          html += row('Svislé nosné konstrukce', safe(kon.material_nosnych_konstrukci.svisle.hodnota) + ' ' + renderZdroj(kon.material_nosnych_konstrukci.svisle.zdroje));
         if (kon.material_nosnych_konstrukci?.vodorovne)
-          html += `<tr><th>Vodorovné konstrukce</th><td>${kon.material_nosnych_konstrukci.vodorovne.hodnota} ${renderZdroj(kon.material_nosnych_konstrukci.vodorovne.zdroje)}</td></tr>`;
+          html += row('Vodorovné konstrukce', safe(kon.material_nosnych_konstrukci.vodorovne.hodnota) + ' ' + renderZdroj(kon.material_nosnych_konstrukci.vodorovne.zdroje));
         if (kon.material_nosnych_konstrukci?.strecha)
-          html += `<tr><th>Střecha</th><td>${kon.material_nosnych_konstrukci.strecha.hodnota} ${renderZdroj(kon.material_nosnych_konstrukci.strecha.zdroje)}</td></tr>`;
+          html += row('Střecha', safe(kon.material_nosnych_konstrukci.strecha.hodnota) + ' ' + renderZdroj(kon.material_nosnych_konstrukci.strecha.zdroje));
         if (kon.kotelna)
-          html += `<tr><th>Kotelna</th><td>${kon.kotelna.stav}, ${kon.kotelna.detail} ${renderZdroj(kon.kotelna.zdroje)}</td></tr>`;
+          html += row('Kotelna', `${safe(kon.kotelna.stav)}, ${safe(kon.kotelna.detail)} ${renderZdroj(kon.kotelna.zdroje)}`);
         if (kon.trafostanice)
-          html += `<tr><th>Trafostanice</th><td>${kon.trafostanice.stav}, ${kon.trafostanice.detail} ${renderZdroj(kon.trafostanice.zdroje)}</td></tr>`;
+          html += row('Trafostanice', `${safe(kon.trafostanice.stav)}, ${safe(kon.trafostanice.detail)} ${renderZdroj(kon.trafostanice.zdroje)}`);
         if (kon.fve)
-          html += `<tr><th>FVE (solární panely)</th><td>${kon.fve.stav}, ${kon.fve.detail} ${renderZdroj(kon.fve.zdroje)}</td></tr>`;
+          html += row('FVE (solární panely)', `${safe(kon.fve.stav)}, ${safe(kon.fve.detail)} ${renderZdroj(kon.fve.zdroje)}`);
         if (kon.nabijeci_stanice_ev)
-          html += `<tr><th>Nabíjecí stanice EV</th><td>${kon.nabijeci_stanice_ev.stav}, ${kon.nabijeci_stanice_ev.detail} ${renderZdroj(kon.nabijeci_stanice_ev.zdroje)}</td></tr>`;
+          html += row('Nabíjecí stanice EV', `${safe(kon.nabijeci_stanice_ev.stav)}, ${safe(kon.nabijeci_stanice_ev.detail)} ${renderZdroj(kon.nabijeci_stanice_ev.zdroje)}`);
         if (kon.hydranty_v_okoli)
-          html += `<tr><th>Hydranty v okolí</th><td>${kon.hydranty_v_okoli.stav}, ${kon.hydranty_v_okoli.detail} ${renderZdroj(kon.hydranty_v_okoli.zdroje)}</td></tr>`;
+          html += row('Hydranty v okolí', `${safe(kon.hydranty_v_okoli.stav)}, ${safe(kon.hydranty_v_okoli.detail)} ${renderZdroj(kon.hydranty_v_okoli.zdroje)}`);
         if (kon.oploceni)
-          html += `<tr><th>Oplocení</th><td>${kon.oploceni.stav}, ${kon.oploceni.detail} ${renderZdroj(kon.oploceni.zdroje)}</td></tr>`;
+          html += row('Oplocení', `${safe(kon.oploceni.stav)}, ${safe(kon.oploceni.detail)} ${renderZdroj(kon.oploceni.zdroje)}`);
         if (kon.kamerovy_system)
-          html += `<tr><th>Kamerový systém</th><td>${kon.kamerovy_system.stav}, ${kon.kamerovy_system.detail} ${renderZdroj(kon.kamerovy_system.zdroje)}</td></tr>`;
+          html += row('Kamerový systém', `${safe(kon.kamerovy_system.stav)}, ${safe(kon.kamerovy_system.detail)} ${renderZdroj(kon.kamerovy_system.zdroje)}`);
         html += `</table>`;
       }
 
-      // Statistické a katastrální údaje
       if (data.statisticke_katastralni_udaje) {
         const stat = data.statisticke_katastralni_udaje;
         html += `<div class="section-title">Statistické a katastrální údaje</div><table class="data-table">`;
         if (stat.zastavena_plocha_m2)
-          html += `<tr><th>Zastavěná plocha</th><td>${stat.zastavena_plocha_m2.hodnota} m² ${renderZdroj(stat.zastavena_plocha_m2.zdroje)}</td></tr>`;
+          html += row('Zastavěná plocha', `${safe(stat.zastavena_plocha_m2.hodnota)} m² ${renderZdroj(stat.zastavena_plocha_m2.zdroje)}`);
         if (stat.pocet_bytu)
-          html += `<tr><th>Počet bytů</th><td>${stat.pocet_bytu.hodnota} ${renderZdroj(stat.pocet_bytu.zdroje)}</td></tr>`;
+          html += row('Počet bytů', `${safe(stat.pocet_bytu.hodnota)} ${renderZdroj(stat.pocet_bytu.zdroje)}`);
         if (stat.pocet_nadzemnich_podlazi)
-          html += `<tr><th>Počet nadzemních podlaží</th><td>${stat.pocet_nadzemnich_podlazi.hodnota} ${renderZdroj(stat.pocet_nadzemnich_podlazi.zdroje)}</td></tr>`;
+          html += row('Počet nadzemních podlaží', `${safe(stat.pocet_nadzemnich_podlazi.hodnota)} ${renderZdroj(stat.pocet_nadzemnich_podlazi.zdroje)}`);
         if (stat.vytah)
-          html += `<tr><th>Výtah</th><td>${stat.vytah.hodnota} ${renderZdroj(stat.vytah.zdroje)}</td></tr>`;
+          html += row('Výtah', `${safe(stat.vytah.hodnota)} ${renderZdroj(stat.vytah.zdroje)}`);
         if (stat.material_nosnych_zdi)
-          html += `<tr><th>Materiál nosných zdí</th><td>${stat.material_nosnych_zdi.hodnota} ${renderZdroj(stat.material_nosnych_zdi.zdroje)}</td></tr>`;
+          html += row('Materiál nosných zdí', `${safe(stat.material_nosnych_zdi.hodnota)} ${renderZdroj(stat.material_nosnych_zdi.zdroje)}`);
         if (stat.zpusob_vytapeni)
-          html += `<tr><th>Způsob vytápění</th><td>${stat.zpusob_vytapeni.hodnota} ${renderZdroj(stat.zpusob_vytapeni.zdroje)}</td></tr>`;
-        if (stat.napojeni_na_site)
-          html += `<tr><th>Napojení na sítě</th><td>${Array.isArray(stat.napojeni_na_site.hodnota) ? stat.napojeni_na_site.hodnota.join(', ') : stat.napojeni_na_site.hodnota} ${renderZdroj(stat.napojeni_na_site.zdroje)}</td></tr>`;
+          html += row('Způsob vytápění', `${safe(stat.zpusob_vytapeni.hodnota)} ${renderZdroj(stat.zpusob_vytapeni.zdroje)}`);
+        if (stat.napojeni_na_site){
+          const val = Array.isArray(stat.napojeni_na_site.hodnota) ? stat.napojeni_na_site.hodnota.join(', ') : (stat.napojeni_na_site.hodnota || '');
+          html += row('Napojení na sítě', `${safe(val)} ${renderZdroj(stat.napojeni_na_site.zdroje)}`);
+        }
         if (stat.pocet_obyvatel)
-          html += `<tr><th>Počet obyvatel</th><td>${stat.pocet_obyvatel.hodnota} ${renderZdroj(stat.pocet_obyvatel.zdroje)}</td></tr>`;
+          html += row('Počet obyvatel', `${safe(stat.pocet_obyvatel.hodnota)} ${renderZdroj(stat.pocet_obyvatel.zdroje)}`);
         if (stat.vlastnictvi)
-          html += `<tr><th>Vlastnictví</th><td>${stat.vlastnictvi.hodnota} ${renderZdroj(stat.vlastnictvi.zdroje)}</td></tr>`;
+          html += row('Vlastnictví', `${safe(stat.vlastnictvi.hodnota)} ${renderZdroj(stat.vlastnictvi.zdroje)}`);
         html += `</table>`;
       }
 
-      // Lokalita
       if (data.lokalita_okolni_prostredi) {
         const lok = data.lokalita_okolni_prostredi;
         html += `<div class="section-title">Lokalita a okolní prostředí</div><table class="data-table">`;
-        if (lok.charakter) html += `<tr><th>Charakter</th><td>${lok.charakter}</td></tr>`;
-        if (lok.hustota_zastavby) html += `<tr><th>Hustota zástavby</th><td>${lok.hustota_zastavby}</td></tr>`;
+        if (lok.charakter) html += row('Charakter', safe(lok.charakter));
+        if (lok.hustota_zastavby) html += row('Hustota zástavby', safe(lok.hustota_zastavby));
         if (lok.vzdalenost_k_nejblizsim_objektum_m != null)
-          html += `<tr><th>Vzdálenost k nejbližším objektům</th><td>${lok.vzdalenost_k_nejblizsim_objektum_m} m</td></tr>`;
-        if (lok.obcanska_vybavenost)
-          html += `<tr><th>Občanská vybavenost</th><td><ul style="margin:0;padding-left:1.2em;">${lok.obcanska_vybavenost.map(x => `<li>${x}</li>`).join('')}</ul></td></tr>`;
-        if (lok.dopravni_dostupnost) html += `<tr><th>Dopravní dostupnost</th><td>${lok.dopravni_dostupnost}</td></tr>`;
-        if (lok.rizika) html += `<tr><th>Rizika</th><td>${lok.rizika}</td></tr>`;
-        if (lok.okolni_zelen) html += `<tr><th>Okolní zeleň</th><td>${lok.okolni_zelen}</td></tr>`;
-        if (lok.parkovani) html += `<tr><th>Parkování</th><td>${lok.parkovani}</td></tr>`;
+          html += row('Vzdálenost k nejbližším objektům', `${safe(lok.vzdalenost_k_nejblizsim_objektum_m)} m`);
+        if (Array.isArray(lok.obcanska_vybavenost))
+          html += row('Občanská vybavenost', `<ul style="margin:0;padding-left:1.2em;">${lok.obcanska_vybavenost.map(x=>`<li>${safe(x)}</li>`).join('')}</ul>`);
+        if (lok.dopravni_dostupnost) html += row('Dopravní dostupnost', safe(lok.dopravni_dostupnost));
+        if (lok.rizika) html += row('Rizika', safe(lok.rizika));
+        if (lok.okolni_zelen) html += row('Okolní zeleň', safe(lok.okolni_zelen));
+        if (lok.parkovani) html += row('Parkování', safe(lok.parkovani));
         html += `</table>`;
       }
 
       return html;
+
+      function row(th, td){ return `<tr><th>${escapeHTML(th)}</th><td>${td}</td></tr>`; }
+      function safe(v){ return escapeHTML(v ?? ''); }
     }
 
-    function renderZdroj(zdroje) {
-      if (!zdroje || !zdroje.length) return '';
-      return '<span style="font-size:90%;color:#666;"> [zdroje: ' +
-        zdroje.map(z => `${z.nazev}${z.duveryhodnost ? ' ('+z.duveryhodnost+')' : ''}`).join(', ')
-        + ']</span>';
+    function renderZdroj(zdroje){
+      if(!Array.isArray(zdroje) || !zdroje.length) return '';
+      const txt = zdroje.map(z => `${z.nazev}${z.duveryhodnost ? ' ('+z.duveryhodnost+')' : ''}`).join(', ');
+      return `<span style="font-size:90%;color:#64748b;"> [zdroje: ${escapeHTML(txt)}]</span>`;
+    }
+
+    function escapeHTML(s){
+      return String(s).replace(/[&<>"']/g, ch => (
+        {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]
+      ));
     }
   </script>
 </body>
