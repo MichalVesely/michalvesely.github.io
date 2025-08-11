@@ -128,7 +128,7 @@
       <button type="submit" id="submit-btn">Zkontrolovat</button>
     </form>
     <div id="output"></div>
-    <h4>Zdroj <a href="https://www.kurzy.cz">Kurzy.cz</a></h4>
+    <h4>Zdroje <a href="https://www.kurzy.cz">Kurzy.cz</a><a href="https://www.mapy.cz">Kurzy.cz</a></h4>
   </div>
 
   <script>
@@ -195,6 +195,18 @@
         </div>
       `;
     }
+
+    html += `</div>`;
+  }
+
+  if (data.mapa) {
+      html += `
+        <div style="flex:1;min-width:140px;text-align:center">
+          <div style="font-size:90%;margin-bottom:.2em">Katastrální mapa</div>
+          <img src="${data.mapa}" alt="Katastrální mapa" style="max-width:180px;max-height:160px;border-radius:.5em;box-shadow:0 2px 8px #0001;">
+        </div>
+      `;
+  }
 
     html += `</div>`;
   }
