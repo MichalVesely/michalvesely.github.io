@@ -196,17 +196,14 @@
       `;
     }
 
-    html += `</div>`;
-  }
-
-  if (data.mapa) {
+    if (data.mapa) {
       html += `
         <div style="flex:1;min-width:140px;text-align:center">
           <div style="font-size:90%;margin-bottom:.2em">Katastrální mapa</div>
           <img src="${data.mapa}" alt="Katastrální mapa" style="max-width:180px;max-height:160px;border-radius:.5em;box-shadow:0 2px 8px #0001;">
         </div>
       `;
-  }
+    }
 
     html += `</div>`;
   }
