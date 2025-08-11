@@ -3,274 +3,161 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Address Checker – 3 obrázky z webhooku</title>
-  <meta name="color-scheme" content="light dark" />
+  <title>Address Checker – JSON schema verze</title>
   <style>
-    :root{
-      --brand:#2563eb; --brand-600:#1d4ed8;
-      --bg:#f6f8fb; --card:#ffffff; --ink:#0f172a;
-      --muted:#eef2f7; --muted-2:#e2e8f0;
-      --shadow:0 12px 40px rgba(2,8,23,.06), 0 2px 6px rgba(2,8,23,.04);
-      --r-lg:1rem; --r-md:.75rem;
+    :root {
+      --brand: #2563eb; --bg: #f6f8fb; --card: #fff;
+      --muted: #eef2f7; --muted-2: #e2e8f0;
+      --ink: #0f172a; --shadow: 0 12px 40px rgba(2,8,23,.06);
+      --r-lg: 1rem; --r-md: .75rem;
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; color:var(--ink); background:var(--bg);
-      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-      display:grid; grid-template-rows:auto 1fr; gap:1.2rem;
+    body {
+      margin: 0; font-family: system-ui, sans-serif;
+      background: var(--bg); color: var(--ink);
+      display: grid; grid-template-rows: auto 1fr; gap: 1rem;
     }
-    .topbar{
-      background:var(--card); box-shadow:var(--shadow);
-      padding:1.2rem clamp(1rem,3vw,2rem); display:grid; gap:.75rem;
+    .topbar {
+      background: var(--card); box-shadow: var(--shadow);
+      padding: 1rem clamp(1rem, 3vw, 2rem);
+      display: grid; gap: .5rem;
     }
-    .title{display:flex; align-items:baseline; gap:.75rem; flex-wrap:wrap}
-    h1{margin:0; font-size:clamp(1.25rem,2.6vw,1.8rem); line-height:1.2}
-    .subtitle{color:#475569; font-size:.95rem}
-    form{display:grid; grid-template-columns:1fr auto; gap:.6rem; width:min(980px,100%)}
-    label{display:none}
-    input[type="text"]{
-      padding:.9rem 1rem; border:1px solid var(--muted-2); border-radius:var(--r-md); background:#fff; font-size:1rem; outline:none;
+    form { display: grid; grid-template-columns: 1fr auto; gap: .5rem; }
+    input {
+      padding: .8rem 1rem; border: 1px solid var(--muted-2);
+      border-radius: var(--r-md); font-size: 1rem;
     }
-    input[type="text"]:focus{border-color:var(--brand); box-shadow:0 0 0 3px rgba(37,99,235,.12)}
-    button{
-      padding:.9rem 1rem; border:0; border-radius:var(--r-md); font-weight:600; font-size:1rem;
-      color:#fff; background:var(--brand); cursor:pointer; display:inline-flex; align-items:center; gap:.5rem;
-      transition:background .15s ease;
+    button {
+      padding: .8rem 1rem; background: var(--brand); color: #fff;
+      border: none; border-radius: var(--r-md); font-weight: bold;
+      cursor: pointer;
     }
-    button:hover{background:var(--brand-600)}
-    button[disabled]{opacity:.7; cursor:not-allowed}
-    .btn-spinner{
-      width:1em; height:1em; border:.2em solid rgba(255,255,255,.55); border-top-color:#fff; border-radius:50%;
-      display:none; animation:spin .9s linear infinite;
+    .content { padding: 0 clamp(1rem, 3vw, 2rem) 2rem; }
+    .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); }
+    .card { background: var(--card); border-radius: var(--r-lg); box-shadow: var(--shadow); padding: 1rem; }
+    .frame {
+      background: var(--muted); border: 1px solid var(--muted-2);
+      border-radius: var(--r-md); min-height: 220px;
+      display: grid; place-items: center; overflow: hidden; position: relative;
     }
-    button[aria-busy="true"] .btn-spinner{display:inline-block}
-
-    .content{padding:0 clamp(1rem,3vw,2rem) 2rem}
-    .card{background:var(--card); border-radius:var(--r-lg); box-shadow:var(--shadow); padding:1rem}
-
-    .empty{display:grid; place-items:center; padding:2rem; text-align:center; gap:.6rem; color:#334155}
-    .empty svg{width:56px; height:56px; opacity:.7}
-    .hint{font-size:.95rem; color:#475569}
-
-    .grid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1rem}
-    .thumb{display:grid; grid-template-rows:auto 1fr; gap:.6rem}
-    .thumb h3{margin:0; font-size:1rem; font-weight:800; color:var(--brand)}
-    .frame{
-      background:var(--muted); border:1px solid var(--muted-2); border-radius:.9rem; overflow:hidden;
-      min-height:240px; position:relative; display:grid; place-items:center;
+    .frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .skeleton::after {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.5), transparent);
+      animation: shimmer 1.2s infinite; transform: translateX(-100%);
     }
-    .frame img{width:100%; height:100%; object-fit:cover; display:block; max-height:480px}
-    .fallback{padding:1rem; opacity:.75}
-
-    /* skeleton */
-    .skeleton::after{
-      content:""; position:absolute; inset:0;
-      background:linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);
-      transform:translateX(-100%); animation:shimmer 1.2s infinite;
-    }
-    .skeleton{background:var(--muted)}
-
-    .result,.error{margin-top:1rem; padding:1rem; border-radius:.75rem; font-size:.97rem}
-    .result{background:var(--muted)}
-    .error{background:#fee2e2; color:#7f1d1d; border:1px solid #fecaca}
-
-    @media (max-width:1000px){ form{grid-template-columns:1fr} .grid{grid-template-columns:1fr} }
-    @keyframes spin{to{transform:rotate(360deg)}}
-    @keyframes shimmer{to{transform:translateX(100%)}}
+    @keyframes shimmer { to { transform: translateX(100%); } }
+    .section-title { margin-top: 1rem; font-weight: bold; color: var(--brand); }
+    table { width: 100%; border-collapse: collapse; background: var(--muted); border-radius: .5rem; overflow: hidden; }
+    th, td { padding: .4rem .6rem; border-bottom: 1px solid var(--muted-2); text-align: left; }
+    th { background: #e0e7ef; width: 40%; }
+    tr:last-child td { border-bottom: none; }
+    .result, .error { padding: .8rem; border-radius: var(--r-md); margin-top: 1rem; }
+    .result { background: var(--muted); }
+    .error { background: #fee2e2; color: #7f1d1d; }
   </style>
 </head>
 <body>
   <div class="topbar">
-    <div class="title">
-      <h1>Address Checker</h1>
-      <div class="subtitle">Z webhooku vezmu 3 URL a zobrazím 3 obrázky</div>
-    </div>
-    <form id="checker-form" autocomplete="off">
-      <label for="address-input">Zadej adresu</label>
-      <input id="address-input" type="text" maxlength="160" required placeholder="např. Okružní 7, Řež" />
-      <button id="submit-btn" type="submit" aria-busy="false">
-        <span class="btn-spinner" aria-hidden="true"></span>
-        Zkontrolovat
-      </button>
+    <h1>Address Checker</h1>
+    <form id="form">
+      <input id="address" type="text" placeholder="Např. Okružní 7, Řež" required />
+      <button>Odeslat</button>
     </form>
   </div>
 
   <div class="content">
-    <!-- úvodní stav -->
-    <div id="output" class="card">
-      <div class="empty" id="empty-state">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                d="M3 11a9 9 0 1118 0 9 9 0 01-18 0zm9-4v5l3 3"/>
-        </svg>
-        <div><strong>Zadej adresu</strong> a pošlu ji na webhook. Z odpovědi vezmu 3 obrázky: satelit, Street View, katastr.</div>
-        <div class="hint">Webhook musí vrátit 3 URL (PNG/JPG/GIF/WebP).</div>
+    <div id="status" class="result">Zadej adresu a odešlu ji na webhook.</div>
+    <div id="images" class="grid" style="display:none;">
+      <div class="card">
+        <h3>Satelit</h3>
+        <div class="frame skeleton" id="sat-frame"></div>
       </div>
-    </div>
-
-    <!-- obrázky -->
-    <div class="grid" id="images-grid" style="display:none;">
-      <div class="card thumb">
-        <h3>Satelitní snímek</h3>
-        <div class="frame" id="frame-sat"><div class="fallback">Zatím žádná data</div></div>
-      </div>
-      <div class="card thumb">
+      <div class="card">
         <h3>Street View</h3>
-        <div class="frame" id="frame-street"><div class="fallback">Zatím žádná data</div></div>
+        <div class="frame skeleton" id="stv-frame"></div>
       </div>
-      <div class="card thumb">
+      <div class="card">
         <h3>Katastr</h3>
-        <div class="frame" id="frame-katastr"><div class="fallback">Zatím žádná data</div></div>
+        <div class="frame skeleton" id="kat-frame"></div>
       </div>
     </div>
+    <div id="details"></div>
   </div>
 
   <script>
-    const form   = document.getElementById('checker-form');
-    const input  = document.getElementById('address-input');
-    const btn    = document.getElementById('submit-btn');
-    const output = document.getElementById('output');
-    const grid   = document.getElementById('images-grid');
+    const form = document.getElementById('form');
+    const addressInput = document.getElementById('address');
+    const statusEl = document.getElementById('status');
+    const imagesEl = document.getElementById('images');
+    const satFrame = document.getElementById('sat-frame');
+    const stvFrame = document.getElementById('stv-frame');
+    const katFrame = document.getElementById('kat-frame');
+    const detailsEl = document.getElementById('details');
 
-    const frameSat    = document.getElementById('frame-sat');
-    const frameStreet = document.getElementById('frame-street');
-    const frameKat    = document.getElementById('frame-katastr');
-
-    form.addEventListener('submit', onSubmit);
-
-    async function onSubmit(e){
+    form.addEventListener('submit', async e => {
       e.preventDefault();
-      const address = (input.value || '').trim();
-      if(!address) return;
+      const adress = addressInput.value.trim();
+      if(!adress) return;
 
-      // UI reset + loadery
-      grid.style.display = 'none';
-      output.innerHTML = '';
-      setButtonBusy(true);
-      setFrameSkeleton(frameSat, true);
-      setFrameSkeleton(frameStreet, true);
-      setFrameSkeleton(frameKat, true);
+      statusEl.textContent = 'Načítám...';
+      imagesEl.style.display = 'grid';
+      [satFrame, stvFrame, katFrame].forEach(f => { f.innerHTML=''; f.classList.add('skeleton'); });
 
       try {
-        // 1) Pošli adresu na webhook
         const res = await fetch('https://hook.eu2.make.com/t7uwl8n3si3xdvp17bi8dcs4toj4cpeh', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ adress: address }) // nechávám klíč "adress" kvůli kompatibilitě
+          body: JSON.stringify({ adress })
         });
         if(!res.ok) throw new Error('Chyba komunikace s webhookem');
         const data = await res.json();
 
-        // 2) Očekávám 3 URL (sat, street, kat)
-        const { satURL, stvURL, katURL } = getThreeUrlsStrict(data);
+        // Obrázky z jasně definovaných klíčů
+        mountImage(satFrame, data.satellite_url);
+        mountImage(stvFrame, data.streetview_url);
+        mountImage(katFrame, data.cadastre_url);
 
-        // 3) Vykresli obrázky (jen co je)
-        mountImage(frameSat,    satURL, 'Satelitní snímek',   'Satelitní snímek nedostupný');
-        mountImage(frameStreet, stvURL, 'Street View snímek', 'Street View nedostupné');
-        mountImage(frameKat,    katURL, 'Katastrální snímek', 'Katastrální snímek nedostupný');
+        // Texty a tabulky
+        renderDetails(data);
 
-        grid.style.display = 'grid';
-        showInfo('Hotovo. Níže jsou obrázky z webhooku.');
-
-      } catch (err) {
-        showError('Došlo k chybě: ' + (err?.message || 'Neznámá chyba'));
-        setFrameSkeleton(frameSat, false, 'Chyba načítání');
-        setFrameSkeleton(frameStreet, false, 'Chyba načítání');
-        setFrameSkeleton(frameKat, false, 'Chyba načítání');
-      } finally {
-        setButtonBusy(false);
+        statusEl.textContent = 'Hotovo. Níže jsou obrázky a detaily.';
+      } catch(err) {
+        statusEl.className = 'error';
+        statusEl.textContent = err.message;
       }
-    }
+    });
 
-    // === STRIKTNÍ EXTRAKCE 3 URL ===
-    // Očekává tyto tvary odpovědi:
-    //  A) objekt s klíči: satellite_url, streetview_url, cadastre_url  (doporučeno)
-    //  B) objekt s klíči: sat_url, stv_url, kat_url
-    //  C) pole [satURL, stvURL, katURL]
-    function getThreeUrlsStrict(data){
-      let satURL = '', stvURL = '', katURL = '';
-
-      if (Array.isArray(data)) {
-        const arr = data.filter(isUrl);
-        satURL = arr[0] || '';
-        stvURL = arr[1] || '';
-        katURL = arr[2] || '';
-      } else if (data && typeof data === 'object') {
-        // varianta A – preferovaná
-        satURL = data.satellite_url || data.satelite_url || '';
-        stvURL = data.streetview_url || data.street_view_url || '';
-        katURL = data.cadastre_url || data.cadastral_url || data.katastr_url || '';
-
-        // varianta B – zkrácené názvy
-        if (!isUrl(satURL)) satURL = data.sat_url || '';
-        if (!isUrl(stvURL)) stvURL = data.stv_url || '';
-        if (!isUrl(katURL)) katURL = data.kat_url || '';
-
-        // varianta C – zabalené do "urls" objektu
-        if (!isUrl(satURL) && data.urls) satURL = data.urls.satellite || data.urls.sat || '';
-        if (!isUrl(stvURL) && data.urls) stvURL = data.urls.streetview || data.urls.street_view || data.urls.stv || '';
-        if (!isUrl(katURL) && data.urls) katURL = data.urls.cadastre || data.urls.cadastral || data.urls.katastr || data.urls.kat || '';
-      }
-
-      // validace
-      satURL = isUrl(satURL) ? satURL : '';
-      stvURL = isUrl(stvURL) ? stvURL : '';
-      katURL = isUrl(katURL) ? katURL : '';
-
-      // pokud žádné 3 URL, vyhoď jasnou chybu
-      const count = [satURL, stvURL, katURL].filter(Boolean).length;
-      if (count === 0) throw new Error('Webhook nevrátil žádné platné URL obrázků.');
-      return { satURL, stvURL, katURL };
-    }
-
-    function isUrl(s){
-      return typeof s === 'string' && /^(https?:)?\/\//i.test(s);
-    }
-
-    // === UI helpery ===
-    function setButtonBusy(busy){
-      btn.setAttribute('aria-busy', busy ? 'true' : 'false');
-      btn.disabled = !!busy;
-    }
-    function setFrameSkeleton(frame, show, fallbackText){
-      frame.classList.toggle('skeleton', !!show);
-      if(show){ frame.innerHTML = ''; }
-      else if (fallbackText){ frame.replaceChildren(makeFallback(fallbackText)); }
-      else { frame.innerHTML = ''; }
-    }
-    function makeFallback(text){
-      const div = document.createElement('div');
-      div.className = 'fallback';
-      div.textContent = text;
-      return div;
-    }
-    function mountImage(frame, url, alt, fallbackText){
-      setFrameSkeleton(frame, true);
-      if(!url){
-        setFrameSkeleton(frame, false, fallbackText);
-        return;
-      }
+    function mountImage(frame, url){
+      frame.classList.remove('skeleton');
+      frame.innerHTML = '';
+      if(!url){ frame.textContent = 'Obrázek nedostupný'; return; }
       const img = new Image();
-      img.alt = alt || '';
-      img.loading = 'lazy';
-      img.referrerPolicy = 'no-referrer';
-      img.onerror = () => setFrameSkeleton(frame, false, fallbackText);
-      img.onload  = () => { frame.classList.remove('skeleton'); frame.replaceChildren(img); };
-      img.src = url;
+      img.src = url; img.loading = 'lazy'; img.alt = '';
+      img.onerror = () => { frame.textContent = 'Obrázek se nepodařilo načíst'; };
+      frame.appendChild(img);
     }
-    function showInfo(text){
-      const el = document.createElement('div');
-      el.className = 'result';
-      el.textContent = text;
-      output.replaceChildren(el);
+
+    function renderDetails(data){
+      let html = '';
+      if(data.souhrn){
+        html += `<div class="section-title">Souhrn</div><div>${data.souhrn}</div>`;
+      }
+      if(data.identifikace_objektu){
+        html += `<div class="section-title">Identifikace objektu</div><table>`;
+        const obj = data.identifikace_objektu;
+        html += row('Adresa', obj.adresa?.hodnota);
+        html += row('Parcelní číslo', obj.parcelni_cislo?.hodnota);
+        html += row('GPS', `Lat: ${obj.gps?.hodnota?.lat}, Lon: ${obj.gps?.hodnota?.lon}`);
+        html += row('Typ stavby', obj.typ_stavby?.hodnota);
+        html += row('Období výstavby', obj.rok_vystavby_obdobi?.hodnota);
+        html += row('Počet nadzemních podlaží', obj.pocet_podlazi?.nadzemni);
+        html += row('Stav budovy', obj.stav_budovy?.hodnota);
+        html += `</table>`;
+      }
+      // případně doplníš konstrukce_technologie, statistické a lokalitu stejným stylem
+      detailsEl.innerHTML = html;
     }
-    function showError(text){
-      const el = document.createElement('div');
-      el.className = 'error';
-      el.textContent = text;
-      output.replaceChildren(el);
-    }
+    function row(label, val){ return `<tr><th>${label}</th><td>${val ?? ''}</td></tr>`; }
   </script>
 </body>
 </html>
