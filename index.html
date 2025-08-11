@@ -1,151 +1,179 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Adress Checker</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Address Checker – obrázky + katastr PNG</title>
   <style>
-    body {
-      background: #f8fafc;
-      font-family: sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+    :root {
+      --brand: #2563eb;
+      --bg: #f8fafc;
+      --card: #fff;
+      --muted: #f1f5f9;
+      --muted-2: #e2e8f0;
+      --shadow: 0 6px 32px #0001;
+      --r-lg: 1rem;
+      --r-md: .75rem;
     }
-    .box {
-      background: #fff;
-      border-radius: 1rem;
-      box-shadow: 0 6px 32px #0001;
-      padding: 2rem;
-      max-width: 420px;
-      width: 100%;
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: #0f172a;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 1rem;
+    }
+    .topbar {
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 1rem clamp(1rem, 2vw, 2rem);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 1rem;
     }
     h1 {
-      text-align: center;
-      font-size: 2rem;
-      margin-bottom: 1.5rem;
+      margin: 0;
+      font-size: clamp(1.25rem, 2.4vw, 1.75rem);
     }
-    input[type="text"] {
-      width: 100%;
-      padding: .75rem;
-      font-size: 1rem;
-      border: 1px solid #e2e8f0;
+    form {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: .75rem;
+      width: min(960px, 100%);
+      justify-self: end;
+    }
+    label { display: none; }
+    input[type="text"]{
+      padding:.8rem .9rem;border:1px solid var(--muted-2);border-radius:var(--r-md);font-size:1rem;background:#fff;
+    }
+    button{
+      padding:.8rem 1rem;border:0;border-radius:var(--r-md);font-weight:600;font-size:1rem;color:#fff;background:var(--brand);cursor:pointer;
+    }
+    .content {
+      padding: 0 clamp(1rem, 2vw, 2rem) 2rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 1rem;
+      align-items: stretch;
+    }
+    .card {
+      background: var(--card);
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow);
+      padding: 1rem;
+    }
+    .thumb {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: .6rem;
+    }
+    .thumb h3 {
+      margin: 0; font-size: 1rem; font-weight: 700; color: var(--brand);
+    }
+    .thumb .frame {
+      background: var(--muted);
+      border: 1px solid var(--muted-2);
       border-radius: .75rem;
-      margin-bottom: 1rem;
-      box-sizing: border-box;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      min-height: 220px;
     }
-    button {
+    .thumb img {
       width: 100%;
-      background: #2563eb;
-      color: #fff;
-      font-weight: 600;
-      border: none;
-      border-radius: .75rem;
-      padding: .75rem;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    button:disabled {
-      background: #3b82f6;
-      cursor: not-allowed;
+      height: 100%;
+      max-height: 420px;
+      object-fit: cover;
+      display: block;
     }
     .result, .error {
-      margin-top: 1.25rem;
-      padding: 1rem;
-      border-radius: .75rem;
-      font-size: .97rem;
-      word-break: break-word;
+      margin-top: 1rem; padding: 1rem; border-radius: .75rem; font-size:.97rem;
     }
-    .result {
-      background: #f1f5f9;
-    }
-    .error {
-      background: #fee2e2;
-      color: #b91c1c;
-    }
-    label {
-      font-weight: 500;
-      display: block;
-      margin-bottom: .5rem;
-    }
-    .section-title {
-      margin-top: 1.5rem;
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #2563eb;
-    }
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: .5rem 0 1rem 0;
-      background: #f1f5f9;
-      border-radius: .5rem;
-      overflow: hidden;
-    }
-    .data-table th, .data-table td {
-      padding: .4rem .7rem;
-      border-bottom: 1px solid #e2e8f0;
-      text-align: left;
-      font-size: .96rem;
-    }
-    .data-table th {
-      background: #e0e7ef;
-      font-weight: 500;
-      width: 44%;
-    }
-    .data-table tr:last-child td {
-      border-bottom: none;
-    }
-    .list {
-      margin: 0;
-      padding-left: 1.2em;
-    }
-    .detail {
-      margin-bottom: 0.7em;
-    }
-    @media (max-width: 600px) {
-      .box {
-        padding: 1rem;
-        max-width: 100vw;
-      }
+    .result { background: var(--muted); }
+    .error { background: #fee2e2; color: #b91c1c; }
+    .section-title { margin:.8rem 0 .4rem; font-weight:700; color:var(--brand); }
+    .data-table { width:100%; border-collapse:collapse; background:var(--muted); border-radius:.5rem; overflow:hidden; }
+    .data-table th,.data-table td{ padding:.45rem .7rem; border-bottom:1px solid var(--muted-2); text-align:left; font-size:.95rem; }
+    .data-table th{ background:#e0e7ef; width:42%; }
+    .data-table tr:last-child td{ border-bottom:0; }
+
+    @media (max-width: 1000px) {
+      form { grid-template-columns: 1fr; width: 100%; justify-self: stretch; }
+      .grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h1>Adress Checker</h1>
+  <div class="topbar">
+    <h1>Address Checker – jen obrázky</h1>
     <form id="checker-form" autocomplete="off">
-      <label for="adress-input">Zadej adresu:</label>
-      <input
-        type="text"
-        id="adress-input"
-        maxlength="100"
-        required
-        placeholder="např. Okružní 7, Řež"
-      />
-      <button type="submit" id="submit-btn">Zkontrolovat</button>
+      <label for="adress-input">Zadej adresu</label>
+      <input id="adress-input" type="text" maxlength="120" required placeholder="např. Okružní 7, Řež" />
+      <button id="submit-btn" type="submit">Zkontrolovat</button>
     </form>
-    <div id="output"></div>
-    <h4>Zdroje <a href="https://www.kurzy.cz">Kurzy.cz, </a><a href="https://www.mapy.cz">Mapy.cz</a></h4>
+  </div>
+
+  <div class="content">
+    <div id="output" class="card">
+      <div class="result">Zadej adresu a ukážu satelit, streetview a katastr PNG.</div>
+    </div>
+
+    <div class="grid" id="images-grid" style="display:none;">
+      <div class="card thumb">
+        <h3>Satelitní snímek</h3>
+        <div class="frame"><img id="img-sat" alt="Satelitní snímek"></div>
+      </div>
+      <div class="card thumb">
+        <h3>Street View</h3>
+        <div class="frame"><img id="img-street" alt="Street View snímek"></div>
+      </div>
+      <div class="card thumb">
+        <h3>Katastrální mapa (PNG)</h3>
+        <div class="frame"><img id="img-katastr" alt="Katastrální mapa"></div>
+      </div>
+    </div>
+
+    <div class="card" id="details" style="margin-top:1rem;"></div>
+
+    <div class="card" style="margin-top:1rem;">
+      <div class="section-title">Zdroje</div>
+      <p style="margin:.4rem 0 0 0">
+        <a href="https://www.kurzy.cz" target="_blank" rel="noopener">Kurzy.cz</a>,
+        <a href="https://www.mapy.cz" target="_blank" rel="noopener">Mapy.cz</a>,
+        <a href="https://www.cuzk.cz" target="_blank" rel="noopener">ČÚZK</a>
+      </p>
+    </div>
   </div>
 
   <script>
-    const form = document.getElementById('checker-form');
-    const input = document.getElementById('adress-input');
+    const form   = document.getElementById('checker-form');
+    const input  = document.getElementById('adress-input');
+    const btn    = document.getElementById('submit-btn');
     const output = document.getElementById('output');
-    const btn = document.getElementById('submit-btn');
+    const grid   = document.getElementById('images-grid');
+    const imgSat    = document.getElementById('img-sat');
+    const imgStreet = document.getElementById('img-street');
+    const imgKat    = document.getElementById('img-katastr');
+    const details   = document.getElementById('details');
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      grid.style.display = 'none';
       output.innerHTML = '';
+      details.innerHTML = '';
       btn.disabled = true;
-      btn.textContent = "Kontroluji…";
+      btn.textContent = 'Kontroluji…';
+
       const adress = input.value.trim();
 
       try {
-        // Změň URL níže na svůj webhook!
+        // 1) Tvůj webhook
         const res = await fetch('https://hook.eu2.make.com/t7uwl8n3si3xdvp17bi8dcs4toj4cpeh', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -154,65 +182,96 @@
         if (!res.ok) throw new Error('Chyba komunikace s webhookem');
         const data = await res.json();
 
-        output.innerHTML =
-          '<div class="result"><strong>Výsledek:</strong><br>' +
-          renderResult(data) +
-          '</div>';
+        // 2) Najdeme/odvodíme obrázky
+        const satURL   = data?.URL_satelite_image || '';
+        const stvURL   = data?.URL_streetview_image || '';
+        let   katURL   = data?.mapa || ''; // pokud webhook už vrací PNG katastru
+
+        // GPS z webhooku
+        let lat = null, lon = null;
+        if (data?.identifikace_objektu?.gps?.hodnota) {
+          lat = Number(data.identifikace_objektu.gps.hodnota.lat);
+          lon = Number(data.identifikace_objektu.gps.hodnota.lon);
+        }
+
+        // Když chybí GPS, zkus geokódovat (jen pro katastrální PNG fallback)
+        if ((lat == null || isNaN(lat) || lon == null || isNaN(lon)) && adress) {
+          try {
+            const geo = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(adress), {
+              headers: { 'Accept': 'application/json' }
+            }).then(r => r.json()).catch(() => []);
+            if (geo && geo.length) {
+              lat = parseFloat(geo[0].lat);
+              lon = parseFloat(geo[0].lon);
+            }
+          } catch(_) {}
+        }
+
+        // Vytvoř WMS PNG katastru, jen když není z webhooku
+        if (!katURL && lat != null && lon != null && !isNaN(lat) && !isNaN(lon)) {
+          katURL = buildCadastralWmsUrl(lon, lat); // lon,lat pořadí
+        }
+
+        // 3) Render obrázků (jen co existuje)
+        imgSat.src    = satURL || '';
+        imgStreet.src = stvURL || '';
+        imgKat.src    = katURL || '';
+
+        // pokud žádné URL, zobraz placeholder text
+        if (!satURL)    imgSat.parentElement.innerHTML    = '<div style="padding:1rem;opacity:.7;">Satelitní snímek nedostupný</div>';
+        if (!stvURL)    imgStreet.parentElement.innerHTML = '<div style="padding:1rem;opacity:.7;">Street View nedostupné</div>';
+        if (!katURL)    imgKat.parentElement.innerHTML    = '<div style="padding:1rem;opacity:.7;">Katastrální PNG nedostupné</div>';
+
+        grid.style.display = 'grid';
+
+        // 4) Doplň detaily (tvoje původní tabulky)
+        details.innerHTML = renderDetails(data);
+
       } catch (err) {
-        output.innerHTML =
-          '<div class="error">Došlo k chybě: ' +
-          (err.message || 'Neznámá chyba') +
-          '</div>';
+        output.innerHTML = '<div class="error">Došlo k chybě: ' + (err?.message || 'Neznámá chyba') + '</div>';
       } finally {
         btn.disabled = false;
-        btn.textContent = "Zkontrolovat";
+        btn.textContent = 'Zkontrolovat';
       }
     });
 
-    function renderResult(data) {
-      if (!data) return '<em>Žádná data</em>';
+    // ---- Pomocné: WMS ČÚZK -> PNG katastru ----
+    // Používám WMS 1.1.1 (SRS=EPSG:4326, BBOX=lon/lat), vrstva CP.CadastralParcel.
+    function buildCadastralWmsUrl(lon, lat, size=512) {
+      const delta = 0.0018; // ~200 m okno (zhruba), uprav dle potřeby
+      const minx = (lon - delta).toFixed(6);
+      const miny = (lat - delta).toFixed(6);
+      const maxx = (lon + delta).toFixed(6);
+      const maxy = (lat + delta).toFixed(6);
 
+      const base = 'https://services.cuzk.cz/wms/inspire-cp-wms.asp';
+      const params = new URLSearchParams({
+        SERVICE: 'WMS',
+        VERSION: '1.1.1',
+        REQUEST: 'GetMap',
+        LAYERS: 'CP.CadastralParcel',
+        STYLES: '',
+        SRS: 'EPSG:4326',
+        BBOX: `${minx},${miny},${maxx},${maxy}`,
+        WIDTH: String(size),
+        HEIGHT: String(size),
+        FORMAT: 'image/png',
+        TRANSPARENT: 'TRUE',
+        BGCOLOR: '0xFFFFFF'
+      });
+      return `${base}?${params.toString()}`;
+    }
+
+    // ---- Render detailních tabulek (zachováno) ----
+    function renderDetails(data) {
+      if (!data) return '';
       let html = '';
 
-// 0. Zobrazení obrázků (satelit/streetview)
-  if (data.URL_satelite_image || data.URL_streetview_image) {
-    html += `<div class="section-title">Obrázky nemovitosti</div><div style="display:flex;gap:1rem;flex-wrap:wrap;">`;
-
-    if (data.URL_satelite_image) {
-      html += `
-        <div style="flex:1;min-width:140px;text-align:center">
-          <div style="font-size:90%;margin-bottom:.2em">Satelitní snímek</div>
-          <img src="${data.URL_satelite_image}" alt="Satelitní snímek" style="max-width:180px;max-height:160px;border-radius:.5em;box-shadow:0 2px 8px #0001;">
-        </div>
-      `;
-    }
-
-    if (data.URL_streetview_image) {
-      html += `
-        <div style="flex:1;min-width:140px;text-align:center">
-          <div style="font-size:90%;margin-bottom:.2em">Street View</div>
-          <img src="${data.URL_streetview_image}" alt="Street View snímek" style="max-width:180px;max-height:160px;border-radius:.5em;box-shadow:0 2px 8px #0001;">
-        </div>
-      `;
-    }
-
-    if (data.mapa) {
-      html += `
-        <div style="flex:1;min-width:140px;text-align:center">
-          <div style="font-size:90%;margin-bottom:.2em">Katastrální mapa</div>
-          <img src="${data.mapa}" alt="Katastrální mapa" style="max-width:180px;max-height:160px;border-radius:.5em;box-shadow:0 2px 8px #0001;">
-        </div>
-      `;
-    }
-
-    html += `</div>`;
-  }
-      
-      // 1. Souhrn
+      // Souhrn
       if (data.souhrn)
-        html += `<div class="section-title">Souhrn</div><div class="detail">${data.souhrn}</div>`;
+        html += `<div class="section-title">Souhrn</div><div>${data.souhrn}</div>`;
 
-      // 2. Identifikace objektu
+      // Identifikace objektu
       if (data.identifikace_objektu) {
         html += `<div class="section-title">Identifikace objektu</div><table class="data-table">`;
         const obj = data.identifikace_objektu;
@@ -220,7 +279,7 @@
           html += `<tr><th>Adresa</th><td>${obj.adresa.hodnota || ''} ${renderZdroj(obj.adresa.zdroje)}</td></tr>`;
         if (obj.parcelni_cislo)
           html += `<tr><th>Parcelní číslo</th><td>${obj.parcelni_cislo.hodnota || ''} ${renderZdroj(obj.parcelni_cislo.zdroje)}</td></tr>`;
-        if (obj.gps && obj.gps.hodnota)
+        if (obj.gps?.hodnota)
           html += `<tr><th>GPS</th><td>Lat: ${obj.gps.hodnota.lat}, Lon: ${obj.gps.hodnota.lon} ${renderZdroj(obj.gps.zdroje)}</td></tr>`;
         if (obj.typ_stavby)
           html += `<tr><th>Typ stavby</th><td>${obj.typ_stavby.hodnota || ''} ${renderZdroj(obj.typ_stavby.zdroje)}</td></tr>`;
@@ -231,15 +290,15 @@
         html += `</table>`;
       }
 
-      // 3. Konstrukce/technologie
+      // Konstrukce/technologie
       if (data.konstrukce_technologie) {
         html += `<div class="section-title">Konstrukce a technologie</div><table class="data-table">`;
         const kon = data.konstrukce_technologie;
-        if (kon.material_nosnych_konstrukci && kon.material_nosnych_konstrukci.svisle)
+        if (kon.material_nosnych_konstrukci?.svisle)
           html += `<tr><th>Svislé nosné konstrukce</th><td>${kon.material_nosnych_konstrukci.svisle.hodnota} ${renderZdroj(kon.material_nosnych_konstrukci.svisle.zdroje)}</td></tr>`;
-        if (kon.material_nosnych_konstrukci && kon.material_nosnych_konstrukci.vodorovne)
+        if (kon.material_nosnych_konstrukci?.vodorovne)
           html += `<tr><th>Vodorovné konstrukce</th><td>${kon.material_nosnych_konstrukci.vodorovne.hodnota} ${renderZdroj(kon.material_nosnych_konstrukci.vodorovne.zdroje)}</td></tr>`;
-        if (kon.material_nosnych_konstrukci && kon.material_nosnych_konstrukci.strecha)
+        if (kon.material_nosnych_konstrukci?.strecha)
           html += `<tr><th>Střecha</th><td>${kon.material_nosnych_konstrukci.strecha.hodnota} ${renderZdroj(kon.material_nosnych_konstrukci.strecha.zdroje)}</td></tr>`;
         if (kon.kotelna)
           html += `<tr><th>Kotelna</th><td>${kon.kotelna.stav}, ${kon.kotelna.detail} ${renderZdroj(kon.kotelna.zdroje)}</td></tr>`;
@@ -258,7 +317,7 @@
         html += `</table>`;
       }
 
-      // 4. Statistické a katastrální údaje
+      // Statistické a katastrální údaje
       if (data.statisticke_katastralni_udaje) {
         const stat = data.statisticke_katastralni_udaje;
         html += `<div class="section-title">Statistické a katastrální údaje</div><table class="data-table">`;
@@ -283,42 +342,31 @@
         html += `</table>`;
       }
 
-      // 5. Lokalita a okolní prostředí
+      // Lokalita
       if (data.lokalita_okolni_prostredi) {
         const lok = data.lokalita_okolni_prostredi;
-        html += `<div class="section-title">Lokalita a okolní prostředí</div>`;
-        html += `<table class="data-table">`;
-        if (lok.charakter)
-          html += `<tr><th>Charakter</th><td>${lok.charakter}</td></tr>`;
-        if (lok.hustota_zastavby)
-          html += `<tr><th>Hustota zástavby</th><td>${lok.hustota_zastavby}</td></tr>`;
-        if (lok.vzdalenost_k_nejblizsim_objektum_m !== undefined && lok.vzdalenost_k_nejblizsim_objektum_m !== null)
+        html += `<div class="section-title">Lokalita a okolní prostředí</div><table class="data-table">`;
+        if (lok.charakter) html += `<tr><th>Charakter</th><td>${lok.charakter}</td></tr>`;
+        if (lok.hustota_zastavby) html += `<tr><th>Hustota zástavby</th><td>${lok.hustota_zastavby}</td></tr>`;
+        if (lok.vzdalenost_k_nejblizsim_objektum_m != null)
           html += `<tr><th>Vzdálenost k nejbližším objektům</th><td>${lok.vzdalenost_k_nejblizsim_objektum_m} m</td></tr>`;
         if (lok.obcanska_vybavenost)
-          html += `<tr><th>Občanská vybavenost</th><td><ul class="list">${lok.obcanska_vybavenost.map(x => `<li>${x}</li>`).join('')}</ul></td></tr>`;
-        if (lok.dopravni_dostupnost)
-          html += `<tr><th>Dopravní dostupnost</th><td>${lok.dopravni_dostupnost}</td></tr>`;
-        if (lok.rizika)
-          html += `<tr><th>Rizika</th><td>${lok.rizika}</td></tr>`;
-        if (lok.okolni_zelen)
-          html += `<tr><th>Okolní zeleň</th><td>${lok.okolni_zelen}</td></tr>`;
-        if (lok.parkovani)
-          html += `<tr><th>Parkování</th><td>${lok.parkovani}</td></tr>`;
+          html += `<tr><th>Občanská vybavenost</th><td><ul style="margin:0;padding-left:1.2em;">${lok.obcanska_vybavenost.map(x => `<li>${x}</li>`).join('')}</ul></td></tr>`;
+        if (lok.dopravni_dostupnost) html += `<tr><th>Dopravní dostupnost</th><td>${lok.dopravni_dostupnost}</td></tr>`;
+        if (lok.rizika) html += `<tr><th>Rizika</th><td>${lok.rizika}</td></tr>`;
+        if (lok.okolni_zelen) html += `<tr><th>Okolní zeleň</th><td>${lok.okolni_zelen}</td></tr>`;
+        if (lok.parkovani) html += `<tr><th>Parkování</th><td>${lok.parkovani}</td></tr>`;
         html += `</table>`;
       }
 
       return html;
     }
 
-    // Pomocná funkce pro zobrazení zdrojů
     function renderZdroj(zdroje) {
       if (!zdroje || !zdroje.length) return '';
-      return (
-        '<span style="font-size: 90%;color:#666;">' +
-        ' [zdroje: ' +
-        zdroje.map(z => `${z.nazev}${z.duveryhodnost ? ' ('+z.duveryhodnost+')' : ''}`).join(', ') +
-        ']</span>'
-      );
+      return '<span style="font-size:90%;color:#666;"> [zdroje: ' +
+        zdroje.map(z => `${z.nazev}${z.duveryhodnost ? ' ('+z.duveryhodnost+')' : ''}`).join(', ')
+        + ']</span>';
     }
   </script>
 </body>
